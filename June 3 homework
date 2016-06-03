@@ -1,0 +1,8 @@
+Thoughts:
+- be careful with details in coding, watch for ; location
+- 
+
+Question:
+-1) if the arduino is connected to a 9v battery, is another one still needed for the motor ?(connected to pin 8 on the H bridge)
+-2) when trying to do a gradual speed increase/decrease, the motor starts with a high pitch hum with no motion. 
+-3) when using an incremental increase in motor speed controlled by a light sensor as switch, it seems the motor won't stop when "switch" is off unless its speed is reduced to 0.
