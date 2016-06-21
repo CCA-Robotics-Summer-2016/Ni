@@ -20,16 +20,15 @@ void draw () {
   float drawWidth = 600*a;
   float drawHeight = 400*a;
   background(255);
-  for (float degreeRadian = 0.0; degreeRadian <=PI; degreeRadian = degreeRadian + (PI/12)) {
+  for (float degreeRadian = 0.0; degreeRadian <=PI; degreeRadian = degreeRadian + (PI/11)) {
     strokeWeight(1);
     line (drawWidth/2, drawHeight-100*a, drawWidth/2-((drawWidth/2-100*a)*cos(degreeRadian)), drawWidth/2-((drawWidth/2-100*a)*sin(degreeRadian)));
   }
 
-  for (float arcRadian = 0.0; arcRadian <=PI; arcRadian = arcRadian + (PI/12)) {
-    for (int i = 0; i<=11; i++) {
+  for (float arcRadian = 0.0; arcRadian <=PI; arcRadian = arcRadian + (PI/11)) {
       noFill();
       strokeWeight(3);
-      arc(drawWidth/2, drawHeight-100*a, Pos+PosMod[i], Pos+PosMod[i], PI, PI+ arcRadian);
+      arc(drawWidth/2, drawHeight-100*a, Pos+PosMod[arcRadian/(PI/11))], Pos+PosMod[arcRadian/(PI/11))], PI, PI+ arcRadian);
     }
   }
 }
