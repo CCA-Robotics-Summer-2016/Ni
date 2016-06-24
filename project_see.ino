@@ -6,9 +6,9 @@
 
 #include <Servo.h>
 
-//setup field of measure at 16 degree interval
-long measurements[176];
-long averages[11];
+//setup field of measure at 18 degree interval
+long measurements[180];
+long averages[10];
 
 //servo
 Servo myServo;
@@ -18,22 +18,22 @@ const int servoPin = 13; //MUST CHANGE THIS TO MATCH BOARD
 int personHeight = 180; //MUST CHANGE THIS TO MATCH HEIGHT
 
 // ultrasonic distance measuring sensor
-const int trigPin = 12;
-const int echoPin = 11;
+const int trigPin = 22;
+const int echoPin = 12;
 
 //buzzer
-int buzzerPin[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-int buzzerCount = 11;
-int buzzerFactor = 200; //adjustable multiplier
+//Be careful with wiring vibrating motors, the first one starting on right hand side goes into pin#2
+int buzzerPin[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+int buzzerCount = 10;
 
 
 //Functions------------------------------------------------------------------
 
-// sweep 176 degrees and populate the measurements array
+// sweep 180 degrees and populate the measurements array
 void sweepAndMeasure() {
-  for (int degree = 0; degree < 176; degree++) {
+  for (int degree = 0; degree < 180; degree++) {
     myServo.write(degree);
-    delay(10);
+    delay(5);
     measurements[degree] = measureDistance();
   }
 }
@@ -48,9 +48,9 @@ long measureDistance() {
   // measure how far anything is from us
   // send the pulse
   digitalWrite(trigPin, LOW);
-  delayMicroseconds(2); // low for 2 microseconds
+  delayMicroseconds(1); // low for 1 microseconds
   digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10); // high for 10 microseconds
+  delayMicroseconds(5); // high for 5 microseconds
   digitalWrite(trigPin, LOW);
   myDuration = pulseIn(echoPin, HIGH); // measure the time to the echo
   distance = (myDuration / 2) / 29.1; // calculate the distance in cm
@@ -64,15 +64,16 @@ long measureDistance() {
 }
 
 //get average of distance, convert it into a factor to be used for buzzer
-int averageTheseEleven ( int startHere ) {
+float averageThese ( int startHere ) {
   int sum = 0;
-  int validMeasurements = 16;
+  int validMeasurements = 18;
   int average;
   float buzzerIntensity;
+  float buzzerFactor;
 
-  for (int degree = startHere; degree < startHere + 16; degree ++) {
-    Serial.print(measurements[degree]);
-    Serial.print("\t");
+  for (int degree = startHere; degree < startHere + 18; degree ++) {
+    //Serial.print(measurements[degree]);
+    //Serial.print("\t");
     if (-1 == measurements[degree] ) {
       // skip this measuremnt
       validMeasurements--;
@@ -80,40 +81,46 @@ int averageTheseEleven ( int startHere ) {
       sum = sum + measurements[degree];
     }
   }
-
   average = sum / validMeasurements;
-  buzzerIntensity = buzzerFactor * (1 / log10(average));
-
-  Serial.print("average:  ");
-  Serial.print(average);
-  Serial.print("\t");
-  Serial.print("valid measurements:  ");
-  Serial.print(validMeasurements);
-  Serial.print("\t");
-  Serial.print("\t");
-  Serial.print("buzzerIntensity:   ");
+  buzzerFactor = (int)(100 * (1 / log10(average))); //value expected within 43 to 333
+  buzzerIntensity = 2 * (map(buzzerFactor, 43 , 333, 50, 255)); //tested analog output power best within 50 to 250 for buzzer
+  /*
+      Serial.print("average:  ");
+      Serial.print(average);
+      Serial.print("\t");
+      Serial.print("valid measurements:  ");
+      Serial.print(validMeasurements);
+      Serial.print("\t");
+      Serial.print("buzzerFactor:  ");
+      Serial.print(buzzerFactor);
+      Serial.print("\t");
+      Serial.print("buzzerIntensity:   ");
+      Serial.print(buzzerIntensity);
+      Serial.println("");
+  */
   Serial.print(buzzerIntensity);
-  Serial.println("");
+  Serial.print(",");
+  Serial.print("0");
 
   return buzzerIntensity;
 }
 
-/*
-void averageInSixteenDegreeChunks() {
-  for (int degree = 0; degree < 176; degree = degree + 16) {
-    averages[degree / 16] = averageTheseEleven(degree);
-  }
-}
- */
 
-//turn on buzzer
+/*
+  void averageInSixteenDegreeChunks() {
+  for (int degree = 0; degree < 176; degree = degree + 16) {
+    averages[degree / 16] = averageThese(degree);
+  }
+  }
+*/
+
+//turn on buzzer. buzzer power range needs to be 50-250
 void buzzerOn() {
-  for (int thisPin = 0; thisPin <= buzzerCount; thisPin++) {
-    for (int degree = 0; degree < 176; degree = degree + 16) {
-      analogWrite ( buzzerPin[thisPin], averageTheseEleven(degree));
-    }
+  for (int degree = 0; degree < 180; degree = degree + 18) {
+    analogWrite ( buzzerPin[degree / 18], averageThese(degree));
   }
 }
+
 
 // End of Functions----------------------------------------------------
 
@@ -137,12 +144,12 @@ void setup() {
   }
 }
 
+
 void loop() {
-
   sweepAndMeasure();//get distance
+  Serial.println("");
   myServo.write(0);//return servo to 0
-  buzzerOn;
-
+  buzzerOn();
 }
 
 
