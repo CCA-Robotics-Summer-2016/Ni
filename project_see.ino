@@ -15,7 +15,7 @@ Servo myServo;
 const int servoPin = 13; //MUST CHANGE THIS TO MATCH BOARD
 
 //set the distance sensor limit to the height of the person
-int personHeight = 180; //MUST CHANGE THIS TO MATCH HEIGHT
+int personHeight = 300; //MUST CHANGE THIS TO MATCH HEIGHT
 
 // ultrasonic distance measuring sensor
 const int trigPin = 22;
@@ -25,6 +25,7 @@ const int echoPin = 12;
 //Be careful with wiring vibrating motors, the first one starting on right hand side goes into pin#2
 int buzzerPin[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
 int buzzerCount = 10;
+int buzzerMod = 60;
 
 
 //Functions------------------------------------------------------------------
@@ -82,7 +83,7 @@ float averageThese ( int startHere ) {
     }
   }
   average = sum / validMeasurements;
-  buzzerFactor = (int)(100 * (1 / log10(average))); //value expected within 43 to 333
+  buzzerFactor = (int)(buzzerMod * (1 / log10(average))); //value expected within 43 to 333
   buzzerIntensity = 2 * (map(buzzerFactor, 43 , 333, 50, 255)); //tested analog output power best within 50 to 250 for buzzer
   /*
       Serial.print("average:  ");
@@ -151,8 +152,3 @@ void loop() {
   myServo.write(0);//return servo to 0
   buzzerOn();
 }
-
-
-
-
-
